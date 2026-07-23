@@ -1,0 +1,1071 @@
+Part A: Process Control System Calls
+
+Q1. Process Creation
+Write a C program using the fork() system call to create a child process.
+Display the Process ID (PID) of both the parent and child processes.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+int main()
+{
+    pid_t pid;
+    pid = fork();
+    if(pid < 0)
+    {
+        printf("Fork failed\n");
+    }
+    else if(pid == 0)
+    {
+        printf("Child Process\n");
+        printf("Child PID = %d\n", getpid());
+        printf("Parent PID = %d\n", getppid());
+    }
+    else
+    {
+        printf("Parent Process\n");
+        printf("Parent PID = %d\n", getpid());
+        printf("Child PID = %d\n", pid);
+    }
+
+    return 0;
+}
+
+Q2. Process Termination
+Write a C program where the child process terminates using exit(), and
+the parent waits for the child using wait() before displaying a completion
+message.
+ANS:
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    pid_t pid;
+    pid = fork();
+    if(pid == 0)
+    {
+        printf("Child Process Executing...\n");
+        exit(0);
+    }
+    else
+    {
+        wait(NULL);
+        printf("Child Process Completed.\n");
+        printf("Parent Process Finished.\n");
+    }
+
+    return 0;
+}
+
+Q3. Executing a New Program
+Write a C program that creates a child process using fork() and executes
+the ls -l command using one of the exec() family of system calls.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid;
+    pid = fork();
+    if(pid == 0)
+    {
+        printf("Executing ls -l...\n");
+        execlp("ls", "ls", "-l", NULL);
+    }
+    else
+    {
+        wait(NULL);
+        printf("Parent Process Completed.\n");
+    }
+
+    return 0;
+}
+Q4. Parent–Child Synchronization
+Write a program where the parent process waits for the child to complete
+before printing &quot;Parent Process Resumed.&quot;
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    pid_t pid;
+    pid = fork();
+    if(pid == 0)
+    {
+        printf("Child Process Running...\n");
+        sleep(3);
+        printf("Child Process Completed.\n");
+    }
+    else
+    {
+        wait(NULL);
+        printf("Parent Process Resumed.\n");
+    }
+
+    return 0;
+}
+
+Q5. Multiple Child Processes
+Write a C program that creates three child processes using fork() and
+displays the PID and PPID (Parent Process ID) of each process.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    int i;
+    for(i = 1; i <= 3; i++)
+    {
+        pid_t pid = fork();
+        if(pid == 0)
+        {
+            printf("Child %d\n", i);
+            printf("PID  = %d\n", getpid());
+            printf("PPID = %d\n\n", getppid());
+            return 0;
+        }
+    }
+
+    for(i = 1; i <= 3; i++)
+        wait(NULL);
+    printf("Parent Process Finished.\n");
+    return 0;
+}
+
+Part B: File Management System Calls
+
+Q6. File Creation
+Write a C program to create a file named student.txt using the open()
+system call.
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main()
+{
+    int fd;
+    fd = open("student.txt", O_CREAT | O_WRONLY, 0644);
+    if(fd < 0)
+    {
+        printf("File creation failed.\n");
+    }
+    else
+    {
+        printf("File 'student.txt' created successfully.\n");
+        close(fd);
+    }
+
+    return 0;
+}
+
+Q7. Writing to a File
+Write a C program to accept a student&#39;s name from the user and write it
+to student.txt using the write() system call.
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    char name[100];
+    int fd;
+    printf("Enter Student Name: ");
+    fgets(name, sizeof(name), stdin);
+    fd = open("student.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if(fd < 0)
+    {
+        printf("Unable to open file.\n");
+        return 1;
+    }
+
+    write(fd, name, strlen(name));
+    printf("Student name written successfully.\n");
+    close(fd);
+    return 0;
+}
+
+Q8. Reading from a File
+Write a C program to read and display the contents of student.txt using
+the read() system call.
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main()
+{
+    int fd;
+    char buffer[100];
+    fd = open("student.txt", O_RDONLY);
+    if(fd < 0)
+    {
+        printf("Cannot open file.\n");
+        return 1;
+    }
+    int bytes = read(fd, buffer, sizeof(buffer) - 1);
+    if(bytes > 0)
+    {
+        buffer[bytes] = '\0';
+        printf("File Contents:\n%s", buffer);
+    }
+    close(fd);
+    return 0;
+}
+
+Q9. Copy File Contents
+Write a C program that copies the contents of source.txt to destination.txt
+using only open(), read(), write(), and close().
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main()
+{
+    int source, destination;
+    char buffer[100];
+    int bytes;
+    source = open("source.txt", O_RDONLY);
+    if(source < 0)
+    {
+        printf("Source file not found.\n");
+        return 1;
+    }
+    destination = open("destination.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    while((bytes = read(source, buffer, sizeof(buffer))) > 0)
+    {
+        write(destination, buffer, bytes);
+    }
+    close(source);
+    close(destination);
+    printf("File copied successfully.\n");
+    return 0;
+}
+
+Q10. File Information
+Write a C program using the stat() system call to display:
+ File size
+ File permissions
+ Last modification time
+ANS:
+#include <stdio.h>
+#include <sys/stat.h>
+#include <time.h>
+int main()
+{
+    struct stat file;
+    if(stat("student.txt", &file) == 0)
+    {
+        printf("File Size : %ld bytes\n", file.st_size);
+        printf("Permissions : %o\n", file.st_mode & 0777);
+        printf("Last Modified : %s", ctime(&file.st_mtime));
+    }
+    else
+    {
+        printf("File not found.\n");
+    }
+    return 0;
+}
+
+Part C: Device Management System Calls
+
+Q11. Keyboard Input
+Write a C program to read characters from the keyboard using the read()
+system call instead of scanf().
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+int main()
+{
+    char name[100];
+    int n;
+    printf("Enter your name: ");
+    n = read(0, name, sizeof(name)-1);
+    if(n > 0)
+    {
+        name[n] = '\0';
+        printf("You entered: %s", name);
+    }
+    return 0;
+}
+
+Q12. Display Output
+Write a C program that displays a message using the write() system call
+instead of printf().
+ANS:
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    char message[] = "Welcome to Operating Systems Lab\n";
+    write(1, message, strlen(message));
+    return 0;
+}
+
+Q13. Redirect Output
+Write a C program to redirect standard output to a file using the dup2()
+system call.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+int main()
+{
+    int fd;
+    fd = open("output.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if(fd < 0)
+    {
+        printf("File cannot be created.\n");
+        return 1;
+    }
+    dup2(fd, STDOUT_FILENO);
+    printf("This message is redirected to output.txt\n");
+    close(fd);
+    return 0;
+}
+
+Part D: Information Maintenance System Calls
+
+Q14. Current Process Information
+Write a C program to display:
+ Process ID
+ Parent Process ID
+ User ID
+ Group ID
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+int main()
+{
+    printf("Process ID        : %d\n", getpid());
+    printf("Parent Process ID : %d\n", getppid());
+    printf("User ID           : %d\n", getuid());
+    printf("Group ID          : %d\n", getgid());
+    return 0;
+}
+
+Q15. Current Working Directory
+Write a C program to display the current working directory using the
+getcwd() system call.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+int main()
+{
+    char path[200];
+    if(getcwd(path, sizeof(path)) != NULL)
+    {
+        printf("Current Working Directory:\n%s\n", path);
+    }
+    else
+    {
+        printf("Error retrieving directory.\n");
+    }
+    return 0;
+}
+
+Q16. System Time
+Write a C program to display the current system time using the time()
+system call.
+ANS:
+#include <stdio.h>
+#include <time.h>
+int main()
+{
+    time_t current;
+    time(&current);
+    printf("Current System Time:\n%s", ctime(&current));
+    return 0;
+}
+
+Part E: Communication System Calls
+
+Q17. Pipe Communication
+Write a C program using pipe() and fork() where the parent sends a
+message to the child process through a pipe.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    int fd[2];
+    char message[] = "Hello Child!";
+    char buffer[100];
+    pipe(fd);
+    if(fork() == 0)
+    {
+        close(fd[1]);              // Close write end
+        read(fd[0], buffer, sizeof(buffer));
+        printf("Child received: %s\n", buffer);
+        close(fd[0]);
+    }
+    else
+    {
+        close(fd[0]);              // Close read end
+        write(fd[1], message, strlen(message) + 1);
+        close(fd[1]);
+    }
+
+    return 0;
+}
+
+Q18. Bidirectional Communication
+Write a C program using two pipes to establish two-way communication
+between a parent and child process.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    int p1[2], p2[2];
+    char parentMsg[] = "Hello Child";
+    char childMsg[] = "Hello Parent";
+    char buffer[100];
+    pipe(p1);
+    pipe(p2);
+    if(fork() == 0)
+    {
+        close(p1[1]);
+        close(p2[0]);
+        read(p1[0], buffer, sizeof(buffer));
+        printf("Child received: %s\n", buffer)
+        write(p2[1], childMsg, strlen(childMsg)+1);
+        close(p1[0]);
+        close(p2[1]);
+    }
+    else
+    {
+        close(p1[0]);
+        close(p2[1]);
+        write(p1[1], parentMsg, strlen(parentMsg)+1);
+        read(p2[0], buffer, sizeof(buffer));
+        printf("Parent received: %s\n", buffer);
+        close(p1[1]);
+        close(p2[0]);
+    }
+    return 0;
+}
+
+Q19. Shared Memory
+Write a C program where two processes communicate using shared
+memory.
+ANS:
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <string.h>
+#include <unistd.h>
+int main()
+{
+    int shmid;
+    char *data;
+    shmid = shmget(1234, 1024, IPC_CREAT | 0666);
+    if(fork() == 0)
+    {
+        data = (char *)shmat(shmid, NULL, 0);
+        strcpy(data, "Hello from Child Process");
+        shmdt(data);
+    }
+    else
+    {
+        wait(NULL);
+        data = (char *)shmat(shmid, NULL, 0);
+        printf("Parent Read: %s\n", data);
+        shmdt(data);
+        shmctl(shmid, IPC_RMID, NULL);
+    }
+
+    return 0;
+}
+
+Q20. Message Queue
+Write a C program that sends a message from one process to another
+using a message queue.
+ANS:
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <unistd.h>
+struct message
+{
+    long type;
+    char text[100];
+};
+int main()
+{
+    int msgid;
+    struct message msg;
+    msgid = msgget(1234, IPC_CREAT | 0666);
+    if(fork() == 0)
+    {
+        msg.type = 1;
+        strcpy(msg.text, "Hello Parent");
+        msgsnd(msgid, &msg, sizeof(msg.text), 0);
+    }
+    else
+    {
+        wait(NULL);
+        msgrcv(msgid, &msg, sizeof(msg.text), 1, 0);
+        printf("Message Received: %s\n", msg.text);
+        msgctl(msgid, IPC_RMID, NULL);
+    }
+    return 0;
+}
+
+Part F: Mixed System Call Exercises
+
+Q21. Student File Management System
+Develop a menu-driven program that allows the user to:
+ Create a file
+ Add student records
+ View records
+ Append new records
+ Delete the file
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    int choice, fd;
+    char data[100];
+    while(1)
+    {
+        printf("\n--- Student File Management ---\n");
+        printf("1. Create File\n");
+        printf("2. Add Student Record\n");
+        printf("3. View Records\n");
+        printf("4. Append Record\n");
+        printf("5. Delete File\n");
+        printf("6. Exit\n");
+        printf("Enter Choice: ");
+        scanf("%d", &choice);
+        getchar();
+        switch(choice)
+        {
+            case 1:
+                fd = open("student.txt", O_CREAT | O_WRONLY, 0644);
+                close(fd);
+                printf("File Created Successfully.\n");
+                break;
+            case 2:
+                fd = open("student.txt", O_WRONLY | O_TRUNC);
+                printf("Enter Student Record: ");
+                fgets(data, sizeof(data), stdin);
+                write(fd, data, strlen(data));
+                close(fd);
+                break;
+            case 3:
+                fd = open("student.txt", O_RDONLY);
+                int n = read(fd, data, sizeof(data)-1);
+                data[n] = '\0';
+                printf("\nRecords:\n%s", data);
+                close(fd);
+                break;
+            case 4:
+                fd = open("student.txt", O_WRONLY | O_APPEND);
+                printf("Enter New Record: ");
+                fgets(data, sizeof(data), stdin);
+                write(fd, data, strlen(data));
+                close(fd);
+                break;
+            case 5:
+                unlink("student.txt");
+                printf("File Deleted Successfully.\n");
+                break;
+            case 6:
+                return 0;
+            default:
+                printf("Invalid Choice.\n");
+        }
+    }
+}
+
+Q22. Mini Command Interpreter
+Write a simple shell program that repeatedly accepts a Linux command
+from the user and executes it using fork() and exec().
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
+int main()
+{
+    char cmd[100];
+    while(1)
+    {
+        printf("Shell> ");
+        scanf("%s", cmd);
+
+        if(strcmp(cmd, "exit") == 0)
+            break;
+        if(fork() == 0)
+        {
+            execlp(cmd, cmd, NULL);
+            printf("Command Not Found\n");
+        }
+        else
+        {
+            wait(NULL);
+        }
+    }
+    return 0;
+}
+
+Q23. Process Monitor
+Develop a program that creates multiple child processes and displays:
+ PID
+ PPID
+ Process execution order
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    int i;
+    for(i=1;i<=3;i++)
+    {
+        if(fork()==0)
+        {
+            printf("Child %d\n", i);
+            printf("PID : %d\n", getpid());
+            printf("PPID: %d\n", getppid());
+            printf("Execution Order: %d\n\n", i);
+            return 0;
+        }
+    }
+    while(wait(NULL)>0);
+    printf("All Child Processes Completed.\n");
+    return 0;
+}
+
+Q24. File Copy Utility
+Develop a command-line utility that copies one file to another using only
+system calls.
+Example:
+./copy input.txt output.txt
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main(int argc,char *argv[])
+{
+    int in,out;
+    char buffer[1024];
+    int bytes;
+    if(argc!=3)
+    {
+        printf("Usage: ./copy input.txt output.txt\n");
+        return 1;
+    }
+    in=open(argv[1],O_RDONLY);
+    out=open(argv[2],O_CREAT|O_WRONLY|O_TRUNC,0644);
+    while((bytes=read(in,buffer,sizeof(buffer)))>0)
+    {
+        write(out,buffer,bytes);
+    }
+    close(in);
+    close(out);
+    printf("File Copied Successfully.\n");
+    return 0;
+}
+
+Q25. Log File Generator
+Develop a program that records the current date, time, and process ID
+into a log file every time the program executes.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
+#include <string.h>
+int main()
+{
+    int fd;
+    char buffer[200];
+    time_t t;
+    time(&t);
+    fd=open("log.txt",O_CREAT|O_WRONLY|O_APPEND,0644);
+    sprintf(buffer,"PID:%d Time:%s",getpid(),ctime(&t));
+    write(fd,buffer,strlen(buffer));
+    close(fd);
+    printf("Log Entry Added Successfully.\n");
+    return 0;
+}
+
+Industry-Based Programming Questions
+
+Q26. Employee Attendance Logger
+An organization wants to maintain employee attendance records.
+Task:
+Develop a program that creates an attendance file, stores employee
+details, and retrieves them using system calls.
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+struct Employee
+{
+    int id;
+    char name[50];
+    char status[20];
+};
+int main()
+{
+    struct Employee emp;
+    char buffer[100];
+    int fd;
+    fd = open("attendance.txt", O_CREAT | O_WRONLY | O_APPEND, 0644);
+    printf("Enter Employee ID: ");
+    scanf("%d", &emp.id);
+    printf("Enter Employee Name: ");
+    scanf("%s", emp.name);
+    printf("Enter Attendance (Present/Absent): ");
+    scanf("%s", emp.status);
+    sprintf(buffer, "ID:%d Name:%s Attendance:%s\n",
+            emp.id, emp.name, emp.status);
+    write(fd, buffer, strlen(buffer));
+    close(fd);
+    printf("\nAttendance Saved Successfully.\n");
+    fd = open("attendance.txt", O_RDONLY);
+    printf("\nAttendance Records:\n");
+    while(read(fd, buffer, sizeof(buffer)-1) > 0)
+    {
+        buffer[99]='\0';
+        printf("%s", buffer);
+    }
+    close(fd);
+    return 0;
+}
+
+Q27. Hospital Patient Record System
+A hospital stores patient records in a file.
+Task:
+Write a program using file system calls to:
+ Add a patient
+ Search by Patient ID
+ Update patient details
+ Delete a patient record
+ANS:
+#include <stdio.h>
+#include <string.h>
+struct Patient
+{
+    int id;
+    char name[30];
+    int age;
+};
+int main()
+{
+    struct Patient p[50];
+    int n=0, choice, id, i;
+    while(1)
+    {
+        printf("\n1.Add Patient");
+        printf("\n2.Search");
+        printf("\n3.Update");
+        printf("\n4.Delete");
+        printf("\n5.Display");
+        printf("\n6.Exit");
+        printf("\nEnter Choice: ");
+        scanf("%d",&choice);
+        switch(choice)
+        {
+            case 1:
+                printf("Patient ID: ");
+                scanf("%d",&p[n].id);
+                printf("Name: ");
+                scanf("%s",p[n].name);
+                printf("Age: ");
+                scanf("%d",&p[n].age);
+                n++;
+                break;
+            case 2:
+                printf("Enter ID: ");
+                scanf("%d",&id);
+                for(i=0;i<n;i++)
+                {
+                    if(p[i].id==id)
+                    {
+                        printf("%d %s %d\n",
+                        p[i].id,p[i].name,p[i].age);
+                    }
+                }
+                break;
+            case 3:
+                printf("Enter ID: ");
+                scanf("%d",&id);
+                for(i=0;i<n;i++)
+                {
+                    if(p[i].id==id)
+                    {
+                        printf("New Name: ");
+                        scanf("%s",p[i].name);
+                        printf("New Age: ");
+                        scanf("%d",&p[i].age);
+                    }
+                }
+                break;
+            case 4:
+                printf("Enter ID: ");
+                scanf("%d",&id);
+                for(i=0;i<n;i++)
+                {
+                    if(p[i].id==id)
+                    {
+                        p[i]=p[n-1];
+                        n--;
+                    }
+                }
+                break;
+            case 5:
+                for(i=0;i<n;i++)
+                {
+                    printf("%d %s %d\n",
+                    p[i].id,p[i].name,p[i].age);
+                }
+                break;
+            case 6:
+                return 0;
+        }
+    }
+}
+
+Q28. Banking Transaction Logger
+Develop a banking transaction logger where every transaction is
+appended to a file using system calls.
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    int fd;
+    char name[50];
+    float amount;
+    char buffer[100];
+    fd=open("transactions.txt",
+    O_CREAT|O_WRONLY|O_APPEND,0644);
+    printf("Customer Name: ");
+    scanf("%s",name);
+    printf("Transaction Amount: ");
+    scanf("%f",&amount);
+    sprintf(buffer,"%s %.2f\n",name,amount);
+    write(fd,buffer,strlen(buffer));
+    close(fd);
+    printf("Transaction Saved Successfully.\n");
+    return 0;
+}
+
+Q29. Printer Queue Simulation
+Simulate a printer queue where multiple print jobs are managed using
+processes and synchronized with appropriate system calls.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    int i;
+    for(i=1;i<=3;i++)
+    {
+        if(fork()==0)
+        {
+            printf("Printing Job %d...\n",i);
+            sleep(2);
+            printf("Job %d Completed.\n",i);
+            return 0;
+        }
+        wait(NULL);
+    }
+    printf("All Print Jobs Completed.\n");
+    return 0;
+}
+
+Q30. Chat Between Parent and Child Processes
+Implement a simple chat application between a parent and child process
+using pipes.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+int main()
+{
+    int p1[2], p2[2];
+    char msg[100];
+    pipe(p1);
+    pipe(p2);
+    if(fork()==0)
+    {
+        close(p1[1]);
+        close(p2[0]);
+        read(p1[0],msg,sizeof(msg));
+        printf("Parent: %s\n",msg);
+        strcpy(msg,"Hello Parent");
+        write(p2[1],msg,strlen(msg)+1);
+        close(p1[0]);
+        close(p2[1]);
+    }
+    else
+    {
+        close(p1[0]);
+        close(p2[1]);
+        strcpy(msg,"Hello Child");
+        write(p1[1],msg,strlen(msg)+1);
+        read(p2[0],msg,sizeof(msg));
+        printf("Child: %s\n",msg);
+        close(p1[1]);
+        close(p2[0]);
+    }
+    return 0;
+}
+
+Challenge Programming Questions
+
+1. Implement a mini Linux shell supporting basic commands (ls, pwd,
+date, mkdir, etc.).
+ANS:
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    char cmd[100];
+    while(1)
+    {
+        printf("MiniShell> ");
+        scanf("%s", cmd);
+        if(strcmp(cmd, "exit") == 0)
+            break;
+        pid_t pid = fork();
+        if(pid == 0)
+        {
+            execlp(cmd, cmd, NULL);
+            printf("Invalid Command!\n");
+            exit(0);
+        }
+        else
+        {
+            wait(NULL);
+        }
+    }
+    return 0;
+}
+
+2. Develop a file explorer using system calls.
+ANS:
+#include <stdio.h>
+#include <dirent.h>
+int main()
+{
+    struct dirent *entry;
+    DIR *dir;
+    dir = opendir(".");
+    if(dir == NULL)
+    {
+        printf("Cannot open directory.\n");
+        return 1;
+    }
+    printf("Files in Current Directory:\n\n");
+    while((entry = readdir(dir)) != NULL)
+    {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+3. Build a process manager that lists active child processes.
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    int i;
+    printf("Parent PID : %d\n\n", getpid());
+    for(i = 1; i <= 5; i++)
+    {
+        pid_t pid = fork();
+        if(pid == 0)
+        {
+            printf("Child %d\n", i);
+            printf("PID  : %d\n", getpid());
+            printf("PPID : %d\n\n", getppid());
+            return 0;
+        }
+    }
+    while(wait(NULL) > 0);
+    printf("All Child Processes Completed.\n");
+    return 0;
+}
+
+4. Simulate CPU scheduling using fork() and sleep().
+ANS:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main()
+{
+    int i;
+    for(i = 1; i <= 3; i++)
+    {
+        pid_t pid = fork();
+        if(pid == 0)
+        {
+            printf("Process %d Started\n", i);
+            sleep(2);
+            printf("Process %d Completed\n", i);
+            return 0;
+        }
+        wait(NULL);
+    }
+    printf("CPU Scheduling Simulation Completed.\n");
+    return 0;
+}
+
+5. Develop a secure file backup utility using low-level file system calls.
+ANS:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main(int argc, char *argv[])
+{
+    int src, dest;
+    char buffer[1024];
+    int bytes;
+    if(argc != 3)
+    {
+        printf("Usage: ./backup source.txt backup.txt\n");
+        return 1;
+    }
+    src = open(argv[1], O_RDONLY);
+    if(src < 0)
+    {
+        printf("Source file not found.\n");
+        return 1;
+    }
+    dest = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0600);
+    while((bytes = read(src, buffer, sizeof(buffer))) > 0)
+    {
+        write(dest, buffer, bytes);
+    }
+    close(src);
+    close(dest);
+    printf("Backup Created Successfully.\n");
+    return 0;
+}
