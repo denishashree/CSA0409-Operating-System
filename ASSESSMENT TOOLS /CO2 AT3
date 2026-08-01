@@ -1,0 +1,130 @@
+Q1. Deadlock Debugging (10 Marks)
+1. Identify the Problem
+  A deadlock occurs between Process P1 and Process P2.
+Both processes wait indefinitely for a resource held by the other process.
+As a result, neither process can enter the critical section.
+
+2. Root Cause
+  P1 locks R1 and waits for R2.
+  P2 locks R2 and waits for R1.
+Both processes hold one resource while waiting for another.
+This creates a circular wait, causing deadlock.
+
+3. Deadlock Conditions
+  Mutual Exclusion: Only one process can access a resource at a time.
+  Hold and Wait: Processes hold one resource while requesting another.
+  No Preemption: Resources cannot be forcibly taken away.
+  Circular Wait: P1 waits for P2, and P2 waits for P1.
+
+4. Optimization
+Acquire resources in the same order (R1 → R2) for all processes.
+Use resource ordering to eliminate circular wait.
+Implement timeout or deadlock detection and recovery if required.
+
+5. Result
+Deadlock is prevented.
+Processes execute without blocking each other.
+Resource utilization and system performance improve.
+
+Q2. CPU Utilization Problem (10 Marks)
+1. Identify the Problem
+CPU utilization is only 30%.
+The CPU remains idle even when processes are available.
+
+2. Root Cause
+Processes repeatedly move between Ready and Waiting states.
+Processes are mostly I/O-bound.
+CPU waits while processes perform I/O operations.
+
+3. Explanation
+Frequent I/O requests reduce CPU execution time.
+The scheduler cannot keep the CPU busy.
+This lowers overall system throughput.
+
+4. Optimization
+Use asynchronous I/O to reduce blocking.
+Schedule CPU-bound processes while I/O-bound processes wait.
+Improve buffering and caching techniques.
+Optimize the scheduling algorithm.
+
+5. Result
+CPU idle time decreases.
+CPU utilization increases.
+Throughput and system efficiency improve.
+
+Q3. Memory Bottleneck Debugging (10 Marks)
+1. Identify the Problem
+The program experiences frequent page faults.
+Performance becomes slow due to excessive memory access.
+
+2. Root Cause
+Large heap size (150 MB).
+25 threads consume additional stack memory.
+Poor memory access causes frequent page loading from disk.
+
+3. Explanation
+Page faults force the operating system to access disk memory.
+Disk access is much slower than RAM access.
+Frequent page faults increase execution time.
+
+4. Optimizations
+Reduce the number of threads using a thread pool.
+Optimize heap memory allocation.
+Free unused memory whenever possible.
+Improve memory locality to reduce paging.
+
+5. Result
+Page faults decrease.
+Memory utilization improves.
+Application performance becomes faster.
+
+Q4. Starvation Debugging (10 Marks)
+1. Identify the Problem
+Process P5 never receives CPU time.
+It remains in the ready queue for a long period.
+
+2. Root Cause
+P5 belongs to the Q3 (Batch Queue).
+Q1 and Q2 always have higher-priority processes.
+Continuous arrival of high-priority processes delays P5 indefinitely.
+
+3. Explanation
+The scheduler always selects higher-priority queues first.
+Lower-priority processes are postponed repeatedly.
+This leads to starvation.
+
+4. Optimization
+Apply Aging to gradually increase the priority of waiting processes.
+Reserve CPU time for lower-priority queues.
+Use fair scheduling techniques.
+
+5. Result
+Starvation is eliminated.
+Fair CPU allocation is achieved.
+Every process eventually gets CPU time.
+
+Q5. Context-Switch Overhead Debugging (10 Marks)
+1. Identify the Problem
+The server performs 20,000 context switches per second.
+Excessive context switching reduces system performance.
+
+2. Root Cause
+Very small time quantum (1 ms).
+Average CPU burst time is 2 ms.
+Frequent I/O operations cause repeated process switching.
+
+3. Explanation
+Each context switch saves and restores process states.
+Too many context switches waste CPU time.
+Useful CPU execution time is reduced.
+
+4. Optimizations
+Increase the time quantum (e.g., 4–5 ms).
+Reduce I/O blocking using asynchronous I/O.
+Batch I/O requests where possible.
+Tune the scheduler to reduce unnecessary preemption.
+
+5. Result
+Context switches decrease.
+CPU overhead is reduced.
+Throughput and overall system performance improve.
