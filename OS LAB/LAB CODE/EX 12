@@ -1,0 +1,20 @@
+#include <stdio.h>
+
+int main()
+{
+    int i;
+
+    printf("Dining Philosophers Problem\n\n");
+
+    for(i = 1; i <= 5; i++)
+    {
+        printf("Philosopher %d is Thinking\n", i);
+        printf("Philosopher %d picks up Left Fork\n", i);
+        printf("Philosopher %d picks up Right Fork\n", i);
+        printf("Philosopher %d is Eating\n", i);
+        printf("Philosopher %d puts down Left Fork\n", i);
+        printf("Philosopher %d puts down Right Fork\n\n", i);
+    }
+
+    return 0;
+}
