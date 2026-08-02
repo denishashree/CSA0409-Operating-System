@@ -1,0 +1,192 @@
+1. A system has 10 printers
+Process	 Max	 Allocation	 Need = Max − Allocation
+P1	      7	      3	               4
+P2	      5	      2	               3
+P3	      3	      2	               1
+
+Step 1: Need Matrix
+Need = Max − Allocation
+P1 = 7 − 3 = 4
+P2 = 5 − 2 = 3
+P3 = 3 − 2 = 1
+
+Step 2: Available Resources
+Total Resources = 10
+Allocated = 3 + 2 + 2 = 7
+Available = 10 − 7 = 3
+
+Step 3: Safe State Check
+Available = 3
+P2 needs 3 → Execute ✓
+Available = 3 + 2 = 5
+P3 needs 1 → Execute ✓
+Available = 5 + 2 = 7
+P1 needs 4 → Execute ✓
+Available = 7 + 3 = 10
+
+Step 4: Safe Sequence
+P2 → P3 → P1
+
+Conclusion: The system is Safe.
+
+2. A system contains 8 tape drives
+Process	Max	Allocation	Need
+P1	     5	    2	       3
+P2	     3	    1	       2
+P3	     4	    2	       2
+Need Matrix
+P1 = 3
+P2 = 2
+P3 = 2
+Available Resources
+Total = 8
+Allocated = 2 + 1 + 2 = 5
+Available = 3
+Safe Sequence
+Available = 3
+P1 executes → Available = 5
+P2 executes → Available = 6
+P3 executes → Available = 8
+Safe Sequence:
+P1 → P2 → P3
+
+Conclusion: System is Safe.
+
+3. There are 12 scanners
+Process	Max	Allocation	Need
+P1	     6	   3	       3
+P2	     5	   2	       3
+P3	     4	   1	       3
+P4	     3	   2	       1
+Need Matrix
+P1 = 3
+P2 = 3
+P3 = 3
+P4 = 1
+Available Resources
+Total = 12
+Allocated = 3 + 2 + 1 + 2 = 8
+Available = 4
+Safe State Check
+Available = 4
+P1 executes → Available = 7
+P2 executes → Available = 9
+P3 executes → Available = 10
+P4 executes → Available = 12
+Safe Sequence
+P1 → P2 → P3 → P4
+
+Conclusion: The system is Safe.
+
+4. System has 15 identical resources
+Process	Max	Allocation	Need
+P1	     7	   3        	4
+P2	     6	   4	        2
+P3	     5	   2          3
+P4	     4	   2	        2
+Need Calculation
+P1 = 4
+P2 = 2
+P3 = 3
+P4 = 2
+Available Resources
+Total = 15
+Allocated = 3 + 4 + 2 + 2 = 11
+Available = 4
+Banker's Algorithm
+Available = 4
+P1 executes → Available = 7
+P2 executes → Available = 11
+P3 executes → Available = 13
+P4 executes → Available = 15
+Safe Sequence
+P1 → P2 → P3 → P4
+
+Conclusion: The system is in a Safe State.
+
+5. Resource Request Problem
+Available = 3
+Process	Max	Allocation	Need
+P1	     7	   3	       4
+P2	     5	   2	       3
+P3	     3	   1	       2
+Process P2 requests 2 resources.
+
+Step 1: Check Request
+Request = 2
+Need(P2) = 3
+Available = 3
+Since
+Request ≤ Need ✓
+Request ≤ Available ✓
+Proceed.
+
+Step 2: Pretend Allocation
+Available = 1
+P2 Allocation = 4
+Need(P2) = 1
+Step 3: Safety Test
+Available = 1
+P2 executes → Available = 5
+P3 executes → Available = 6
+P1 executes → Available = 9
+Safe Sequence:
+P2 → P3 → P1
+
+Answer
+Yes, the request can be granted.
+Banker's Algorithm shows the system remains safe.
+Safe Sequence = P2 → P3 → P1
+
+6. Process P1 requests 3 additional printers
+Available = 2
+Process	Max	Allocation	Need
+P1	     8	    4       	4
+P2	     5	    3	        2
+P3	     4    	2       	2
+Request = 3
+Check
+Need(P1) = 4
+Available = 2
+Since
+Request (3) > Available (2)
+The request cannot be granted immediately.
+
+Answer
+The operating system should not grant the request.
+There are not enough available resources.
+P1 must wait until more resources are released.
+
+7. Determine Safe or Unsafe State
+Available = 2
+Process	Need
+P1	     3
+P2	     2
+P3	     1
+Execution
+Available = 2
+P3 executes → Available = 3
+P2 executes → Available = 5
+P1 executes → Available = 8
+Safe Sequence
+P3 → P2 → P1
+
+Conclusion
+The system is Safe.
+
+8. Available = 0
+Process	Need
+P1	     2
+P2	     1
+P3	     3
+Check
+Available = 0
+P1 needs 2 ✗
+P2 needs 1 ✗
+P3 needs 3 ✗
+No process can execute.
+
+Answer
+No process can execute.
+Since Available = 0, none of the process needs can be satisfied.
+Therefore, the system is in an Unsafe State (and will remain blocked until resources are released).
