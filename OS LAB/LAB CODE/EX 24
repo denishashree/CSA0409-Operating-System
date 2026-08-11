@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd;
+    char buffer[100];
+    int n;
+
+    /* Open an existing UNIX file */
+    fd = open("/etc/hostname", O_RDONLY);
+
+    if (fd < 0)
+    {
+        printf("File cannot be opened.\n");
+        return 1;
+    }
+
+    printf("File opened successfully.\n");
+
+    /* Read file */
+    n = read(fd, buffer, sizeof(buffer) - 1);
+
+    if (n > 0)
+    {
+        buffer[n] = '\0';
+        printf("File Content: %s\n", buffer);
+    }
+
+    /* Close file */
+    close(fd);
+
+    printf("File closed successfully.\n");
+
+    return 0;
+}
