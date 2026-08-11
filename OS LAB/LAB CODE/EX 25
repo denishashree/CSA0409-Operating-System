@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main()
+{
+    int fd;
+    struct stat st;
+    DIR *dir;
+    struct dirent *entry;
+
+    /* Open an existing file */
+    fd = open("/etc/hostname", O_RDONLY);
+
+    if(fd < 0)
+    {
+        printf("File cannot be opened.\n");
+        return 1;
+    }
+
+    printf("File opened successfully.\n");
+
+    /* fcntl() */
+    printf("File Descriptor: %d\n", fcntl(fd, F_GETFD));
+
+    /* lseek() */
+    lseek(fd, 0, SEEK_SET);
+    printf("File pointer moved to beginning.\n");
+
+    /* stat() */
+    if(stat("/etc/hostname", &st) == 0)
+    {
+        printf("File Size: %ld bytes\n", st.st_size);
+    }
+
+    /* opendir() */
+    dir = opendir("/etc");
+
+    if(dir != NULL)
+    {
+        printf("\nDirectory Contents:\n");
+
+        /* readdir() */
+        while((entry = readdir(dir)) != NULL)
+        {
+            printf("%s\n", entry->d_name);
+        }
+
+        closedir(dir);
+    }
+
+    close(fd);
+
+    return 0;
+}
