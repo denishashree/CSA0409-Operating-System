@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <sys/stat.h>
+
+int main()
+{
+    struct stat st;
+
+    if(stat("/etc/hostname", &st) == 0)
+    {
+        printf("File: /etc/hostname\n");
+
+        printf("User permissions : ");
+        printf("%s%s%s\n",
+               (st.st_mode & S_IRUSR) ? "Read " : "",
+               (st.st_mode & S_IWUSR) ? "Write " : "",
+               (st.st_mode & S_IXUSR) ? "Execute" : "");
+
+        printf("Group permissions: ");
+        printf("%s%s%s\n",
+               (st.st_mode & S_IRGRP) ? "Read " : "",
+               (st.st_mode & S_IWGRP) ? "Write " : "",
+               (st.st_mode & S_IXGRP) ? "Execute" : "");
+
+        printf("Other permissions: ");
+        printf("%s%s%s\n",
+               (st.st_mode & S_IROTH) ? "Read " : "",
+               (st.st_mode & S_IWOTH) ? "Write " : "",
+               (st.st_mode & S_IXOTH) ? "Execute" : "");
+    }
+    else
+    {
+        printf("Unable to access file.\n");
+    }
+
+    return 0;
+}
