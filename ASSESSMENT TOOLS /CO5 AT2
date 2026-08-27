@@ -1,0 +1,115 @@
+1. Disk Space Management Algorithm:
+
+BEGIN
+    SET threshold = 80%
+    usage = GET_DISK_USAGE()
+
+    IF usage > threshold THEN
+        log_files = IDENTIFY_LOG_FILES()
+        SORT log_files BY size DESCENDING
+
+        FOR each file IN log_files DO
+            IF file is old THEN
+                COMPRESS or DELETE file
+            ENDIF
+
+            usage = GET_DISK_USAGE()
+
+            IF usage <= threshold THEN
+                BREAK
+            ENDIF
+        ENDFOR
+
+        PRINT "Disk usage reduced successfully"
+    ELSE
+        PRINT "Disk usage is normal"
+    ENDIF
+END
+
+2. Priority-Based CPU Scheduling:
+
+BEGIN
+    INPUT process_list
+    SORT process_list BY priority DESCENDING
+
+    WHILE process_list IS NOT EMPTY DO
+        SELECT process WITH highest priority
+        ALLOCATE CPU TO process
+        EXECUTE process
+
+        IF process is completed THEN
+            REMOVE process FROM process_list
+        ELSE
+            REDUCE priority slightly
+            ADD process BACK TO process_list
+        ENDIF
+    ENDWHILE
+
+    PRINT "All processes completed"
+END
+
+3. RAM Allocation Among Virtual Machines:
+
+BEGIN
+    SET total_RAM = 16 GB
+    SET host_reserved = 4 GB
+    available_RAM = total_RAM - host_reserved
+
+    INPUT number_of_VMs
+    SET min_RAM = 2 GB
+
+    FOR i = 1 TO number_of_VMs DO
+        IF available_RAM >= min_RAM THEN
+            ALLOCATE min_RAM TO VM[i]
+            available_RAM = available_RAM - min_RAM
+            PRINT "RAM allocated to VM", i
+        ELSE
+            PRINT "Insufficient memory for VM", i
+        ENDIF
+    ENDFOR
+
+    PRINT "Remaining RAM =", available_RAM
+END
+
+4. Hypervisor Selection Algorithm:
+
+BEGIN
+    INPUT performance_required
+    INPUT budget
+    INPUT hardware_access
+
+    IF performance_required = HIGH AND hardware_access = TRUE THEN
+        selected_hypervisor = "Type-1 Hypervisor"
+
+    ELSE IF budget = LOW THEN
+        selected_hypervisor = "Type-2 Hypervisor"
+
+    ELSE
+        selected_hypervisor = "Type-1 Hypervisor"
+    ENDIF
+
+    PRINT "Selected Hypervisor =", selected_hypervisor
+END
+
+Justification:
+Type-1 hypervisors provide better performance because they run directly on the hardware.
+Type-2 hypervisors are suitable when low cost and simplicity are more important.
+
+5. CPU and Memory Resource Management Using cgroups:
+
+BEGIN
+    INPUT application_list
+
+    FOR each app IN application_list DO
+        CREATE cgroup FOR app
+
+        SET CPU limit FOR app
+        SET memory limit FOR app
+
+        ASSIGN app PROCESS TO cgroup
+
+        MONITOR CPU AND memory usage
+    ENDFOR
+
+    PRINT "Resource limits applied successfully"
+END
